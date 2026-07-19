@@ -1,52 +1,54 @@
 import { Router } from "express";
-import { Type } from "@google/genai";
 import { searchJobs } from "../services/jsearch.js";
 import { fetchPageText } from "../services/scraper.js";
-import { askForJson } from "../services/gemini.js";
+import { askForJson } from "../services/openai.js";
 
 const router = Router();
 
 const MANUAL_JOB_SCHEMA = {
-  type: Type.OBJECT,
+  type: "object",
   properties: {
-    title: { type: Type.STRING },
-    company: { type: Type.STRING },
+    title: { type: "string" },
+    company: { type: "string" },
     description: {
-      type: Type.STRING,
+      type: "string",
       description: "The full job description text, cleaned up and readable.",
     },
   },
   required: ["title", "company", "description"],
+  additionalProperties: false,
 };
 
 const MATCH_SCHEMA = {
-  type: Type.OBJECT,
+  type: "object",
   properties: {
     matches: {
-      type: Type.ARRAY,
+      type: "array",
       items: {
-        type: Type.OBJECT,
+        type: "object",
         properties: {
-          job_id: { type: Type.STRING },
+          job_id: { type: "string" },
           match_score: {
-            type: Type.INTEGER,
+            type: "integer",
             description: "Semantic match percentage, 0-100.",
           },
           match_reason: {
-            type: Type.STRING,
+            type: "string",
             description: "A 2-line explanation of the match score.",
           },
           missing_skills: {
-            type: Type.ARRAY,
-            items: { type: Type.STRING },
+            type: "array",
+            items: { type: "string" },
             description: "Skills this specific job wants that the candidate's resume does not show.",
           },
         },
         required: ["job_id", "match_score", "match_reason", "missing_skills"],
+        additionalProperties: false,
       },
     },
   },
   required: ["matches"],
+  additionalProperties: false,
 };
 
 // POST /api/jobs/search  { preferences, parsedResume }
@@ -159,7 +161,7 @@ function handleError(res, err) {
     return res.status(503).json({ error: err.message });
   }
   if (err.code === "AUTH_ERROR") {
-    return res.status(401).json({ error: `Gemini rejected the API key: ${err.message}` });
+    return res.status(401).json({ error: `OpenAI rejected the API key: ${err.message}` });
   }
   if (err.code === "REFUSAL") {
     return res.status(422).json({ error: err.message });

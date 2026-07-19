@@ -1,34 +1,34 @@
 import { Router } from "express";
-import { Type } from "@google/genai";
-import { askForJson, askForText } from "../services/gemini.js";
+import { askForJson, askForText } from "../services/openai.js";
 import { streamResumePdf } from "../services/pdf.js";
 import { addRecord } from "../services/trackerStore.js";
 
 const router = Router();
 
 const RESUME_SCHEMA = {
-  type: Type.OBJECT,
+  type: "object",
   properties: {
     skills: {
-      type: Type.ARRAY,
-      items: { type: Type.STRING },
+      type: "array",
+      items: { type: "string" },
       description: "Concrete skills, tools, and competencies mentioned or implied.",
     },
     experience_level: {
-      type: Type.STRING,
+      type: "string",
       enum: ["Entry", "Mid", "Senior", "Lead", "Executive"],
     },
     past_job_titles: {
-      type: Type.ARRAY,
-      items: { type: Type.STRING },
+      type: "array",
+      items: { type: "string" },
     },
     key_technologies: {
-      type: Type.ARRAY,
-      items: { type: Type.STRING },
+      type: "array",
+      items: { type: "string" },
       description: "Programming languages, frameworks, platforms, and tools.",
     },
   },
   required: ["skills", "experience_level", "past_job_titles", "key_technologies"],
+  additionalProperties: false,
 };
 
 // POST /api/resume/parse  { resumeText }
@@ -96,7 +96,7 @@ function handleError(res, err) {
     return res.status(503).json({ error: err.message });
   }
   if (err.code === "AUTH_ERROR") {
-    return res.status(401).json({ error: `Gemini rejected the API key: ${err.message}` });
+    return res.status(401).json({ error: `OpenAI rejected the API key: ${err.message}` });
   }
   if (err.code === "REFUSAL") {
     return res.status(422).json({ error: err.message });

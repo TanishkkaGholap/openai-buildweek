@@ -15,7 +15,7 @@ app.use(express.json({ limit: "2mb" }));
 app.get("/api/health", (req, res) => {
   res.json({
     ok: true,
-    geminiConfigured: !!process.env.GEMINI_API_KEY,
+    openaiConfigured: !!process.env.OPENAI_API_KEY,
     rapidApiConfigured: !!process.env.RAPIDAPI_KEY,
   });
 });
@@ -32,8 +32,8 @@ app.use((err, req, res, next) => {
 
 app.listen(PORT, () => {
   console.log(`JobMatch AI server listening on http://localhost:${PORT}`);
-  if (!process.env.GEMINI_API_KEY) {
-    console.warn("⚠️  GEMINI_API_KEY is not set — resume parsing, matching, and tailoring will fail.");
+  if (!process.env.OPENAI_API_KEY) {
+    console.warn("⚠️  OPENAI_API_KEY is not set — resume parsing, matching, and tailoring will fail.");
   }
   if (!process.env.RAPIDAPI_KEY) {
     console.warn("⚠️  RAPIDAPI_KEY is not set — live job fetching will fail (manual add still works).");
