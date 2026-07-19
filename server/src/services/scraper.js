@@ -3,7 +3,7 @@ import * as cheerio from "cheerio";
 
 /**
  * Fetch a job posting URL and return cleaned, visible text content
- * suitable for feeding to Claude for extraction.
+ * suitable for feeding to the model for extraction.
  */
 export async function fetchPageText(url) {
   const response = await axios.get(url, {

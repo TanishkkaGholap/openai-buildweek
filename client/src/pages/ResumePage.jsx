@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { useApp } from "../context/AppContext.jsx";
 import { api } from "../api.js";
 import Loader from "../components/Loader.jsx";
@@ -22,6 +22,26 @@ export default function ResumePage() {
 
   const [error, setError] = useState("");
   const [tailorResult, setTailorResult] = useState(null); // { job, tailoredResume }
+  const [extractingFile, setExtractingFile] = useState(false);
+  const fileInputRef = useRef(null);
+
+  async function handleFileUpload(e) {
+    const file = e.target.files?.[0];
+    e.target.value = ""; // allow re-selecting the same file later
+    if (!file) return;
+
+    setError("");
+    setExtractingFile(true);
+    try {
+      const { extractResumeText } = await import("../utils/extractResumeText.js");
+      const text = await extractResumeText(file);
+      setResumeText(text);
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setExtractingFile(false);
+    }
+  }
 
   async function handleParse(e) {
     e.preventDefault();
@@ -118,20 +138,40 @@ export default function ResumePage() {
 
       <form className="card" onSubmit={handleParse}>
         <h2>1. Your Resume</h2>
+
+        <div className="row" style={{ marginBottom: 14 }}>
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept=".pdf,.docx,.txt"
+            onChange={handleFileUpload}
+            style={{ display: "none" }}
+          />
+          <button
+            type="button"
+            className="secondary"
+            onClick={() => fileInputRef.current?.click()}
+            disabled={extractingFile}
+          >
+            {extractingFile ? "Reading file…" : "Upload Resume (PDF / DOCX / TXT)"}
+          </button>
+          {extractingFile && <Loader label="Extracting text from your file…" />}
+        </div>
+
         <div className="field full">
-          <label htmlFor="resumeText">Paste resume text</label>
+          <label htmlFor="resumeText">Or paste resume text</label>
           <textarea
             id="resumeText"
             value={resumeText}
             onChange={(e) => setResumeText(e.target.value)}
-            placeholder="Paste the full text of your resume here..."
+            placeholder="Paste the full text of your resume here, or upload a file above..."
           />
         </div>
         <div className="row" style={{ marginTop: 14 }}>
           <button type="submit" disabled={parsing || !resumeText.trim()}>
             {parsing ? "Parsing…" : "Parse Resume"}
           </button>
-          {parsing && <Loader label="Claude is reading your resume…" />}
+          {parsing && <Loader label="Reading your resume…" />}
         </div>
       </form>
 
