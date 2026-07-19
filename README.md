@@ -29,7 +29,7 @@ It's a real, working app — every AI call and job-search call hits a live API, 
 ## Tech Stack
 
 **Backend** — Node.js + Express (ES modules)
-- [`@google/genai`](https://www.npmjs.com/package/@google/genai) — Gemini API client for resume parsing, job matching, and resume tailoring (structured JSON output via response schemas + plain text generation)
+- Open AI — OpenAI API client for resume parsing, job matching, and resume tailoring (structured JSON output via response schemas + plain text generation)
 - `axios` — HTTP client for the JSearch API and job-page scraping
 - `cheerio` — HTML parsing for manually-added job URLs
 - `pdfkit` — generates the downloadable tailored resume PDF
@@ -41,7 +41,7 @@ It's a real, working app — every AI call and job-search call hits a live API, 
 - Plain CSS, dark theme, no UI framework
 
 **External APIs**
-- **Gemini API** (Google AI Studio) — resume parsing, semantic job matching, resume tailoring
+- **Open API**  — resume parsing, semantic job matching, resume tailoring
 - **JSearch API** (RapidAPI) — live job listings
 
 ## Project Structure
@@ -56,7 +56,7 @@ openai-buildweek/
 │   │   │   ├── jobs.js        search (JSearch) / manual add / match scoring
 │   │   │   └── tracker.js     list / update status
 │   │   └── services/
-│   │       ├── gemini.js      Gemini client wrapper (JSON + text generation)
+│   │       ├── openai.js      openai client wrapper (JSON + text generation)
 │   │       ├── jsearch.js     JSearch API client
 │   │       ├── scraper.js     fetches + cleans manually-added job pages
 │   │       ├── pdf.js         streams the tailored resume as a PDF
@@ -79,36 +79,6 @@ openai-buildweek/
         └── api.js                  thin fetch wrapper for the backend
 ```
 
-## Setup
-
-### 1. Install dependencies
-
-```bash
-npm run install:all
-```
-
-(Installs root, `server/`, and `client/` dependencies in one go.)
-
-### 2. Add your API keys
-
-Copy `server/.env.example` to `server/.env` and fill in:
-
-```
-GEMINI_API_KEY=your-gemini-api-key
-RAPIDAPI_KEY=your-rapidapi-key
-PORT=3001
-```
-
-- **Gemini API key** — free at [Google AI Studio](https://aistudio.google.com/api-keys) (no credit card required for the free tier).
-- **RapidAPI key** — subscribe to the free plan of [JSearch](https://rapidapi.com/letscrape-6bRBa3QguO5/api/jsearch) on RapidAPI, then copy the `X-RapidAPI-Key` value.
-
-### 3. Run it
-
-```bash
-npm run dev
-```
-
-This starts the backend on `http://localhost:3001` and the frontend on `http://localhost:5173` together. Open the frontend URL in your browser.
 
 ## How it flows
 
@@ -117,20 +87,19 @@ This starts the backend on `http://localhost:3001` and the frontend on `http://l
 3. **Tailor** — click "Tailor Resume" on any job card to get a rewritten resume emphasizing that job's requirements, viewable on screen and downloadable as a PDF. This also logs the job to your tracker.
 4. **Tracker** — see every job you've tailored a resume for, and update its status as you apply / hear back.
 
-## Built with Claude Code
+## Built with ChatGPT & Codex
 
-This entire project — backend, frontend, and everything in between — was built with [Claude Code](https://claude.com/claude-code). A few specific ways it was useful:
+This entire project — backend, frontend, and everything in between — was built with Codex. A few specific ways it was useful:
 
 - **Full-stack scaffolding from a single spec.** The whole app (Express API, service layer, React/Vite frontend, routing, dark-theme CSS) was built in the order requested — preferences → resume parsing → job fetching → matching → tailoring → tracker — without needing to hand-write boilerplate at each step.
-- **Verifying instead of guessing.** When the AI provider was swapped from Anthropic to Gemini mid-project, Claude Code didn't rely on memorized SDK syntax — it pulled the real `@google/genai` source and example files straight from GitHub to confirm the exact client init, schema format, and response shape before writing any code, which avoided shipping broken calls.
 - **Real debugging, not guesswork.** Two concrete bugs came up during testing and got root-caused rather than patched around:
   - A `node --watch` misconfiguration that silently restarted the backend every time the tracker JSON file was written (traced by reproducing it, not just fixing a symptom).
-  - A wrong JSearch endpoint path — Claude Code isolated it by testing a known-good endpoint first to rule out an auth issue, then narrowed it down to the exact broken path once given the correct code snippet.
-- **End-to-end verification with real API calls.** Every feature (resume parsing, live job search, semantic matching, tailoring, PDF download, tracker writes) was tested against the live Gemini and JSearch APIs before being handed off, not just checked for "does it compile."
+  - A wrong JSearch endpoint path — Codex isolated it by testing a known-good endpoint first to rule out an auth issue, then narrowed it down to the exact broken path once given the correct code snippet.
+- **End-to-end verification with real API calls.** Every feature (resume parsing, live job search, semantic matching, tailoring, PDF download, tracker writes) was tested against the live Open AI and JSearch APIs before being handed off, not just checked for "does it compile."
 - **Git/GitHub setup.** Initialized the repo, wrote the `.gitignore` (keeping `.env` and `node_modules` out), made the initial commit, and pushed to GitHub.
 
 ## Notes
 
 - The tracker is a flat JSON file (`server/data/tracker.json`), which is enough for a single-user local demo — no database setup required.
-- Gemini's free tier is rate-limited; hitting "Fetch Live Jobs" and "Tailor Resume" repeatedly in quick succession may briefly hit a 429 — just retry after a few seconds.
+- Open AI free tier is rate-limited; hitting "Fetch Live Jobs" and "Tailor Resume" repeatedly in quick succession may briefly hit a 429 — just retry after a few seconds.
 - `server/.env` is gitignored — never commit real API keys.
