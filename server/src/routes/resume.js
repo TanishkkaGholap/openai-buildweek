@@ -68,7 +68,7 @@ router.post("/tailor", async (req, res) => {
     });
 
     // Every tailoring event is tracked automatically.
-    const record = addRecord({ jobTitle: job.title, company: job.company });
+    const record = await addRecord({ jobTitle: job.title, company: job.company });
 
     res.json({ tailoredResume: tailored, trackerRecord: record });
   } catch (err) {

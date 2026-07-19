@@ -1,4 +1,8 @@
-const BASE = "/api";
+// In local dev, relative "/api" is handled by the Vite dev-server proxy
+// (see vite.config.js). In production, the frontend and backend are
+// separate Vercel projects/domains, so VITE_API_URL must point at the
+// deployed backend, e.g. "https://server-dusky-six-22.vercel.app/api".
+const BASE = import.meta.env.VITE_API_URL || "/api";
 
 async function request(path, options = {}) {
   const res = await fetch(`${BASE}${path}`, {

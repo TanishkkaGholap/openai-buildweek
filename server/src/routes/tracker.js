@@ -4,9 +4,9 @@ import { listRecords, updateStatus, VALID_STATUSES } from "../services/trackerSt
 const router = Router();
 
 // GET /api/tracker
-router.get("/", (req, res) => {
+router.get("/", async (req, res) => {
   try {
-    res.json({ records: listRecords(), validStatuses: VALID_STATUSES });
+    res.json({ records: await listRecords(), validStatuses: VALID_STATUSES });
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: err.message });
@@ -14,13 +14,13 @@ router.get("/", (req, res) => {
 });
 
 // PATCH /api/tracker/:id  { status }
-router.patch("/:id", (req, res) => {
+router.patch("/:id", async (req, res) => {
   try {
     const { status } = req.body;
     if (!status) {
       return res.status(400).json({ error: "status is required." });
     }
-    const record = updateStatus(req.params.id, status);
+    const record = await updateStatus(req.params.id, status);
     res.json({ record });
   } catch (err) {
     if (err.code === "NOT_FOUND") {
