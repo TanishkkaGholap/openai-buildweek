@@ -2,6 +2,8 @@
 
 An end-to-end job search assistant. Set your preferences, paste your resume, and get a ranked list of jobs — pulled from live listings and/or added manually by URL — scored against your resume with an AI-generated match reason and a list of skills you're missing for each one. Tailor your resume for any specific job in one click, download it as a PDF, and every tailoring event is logged to a built-in application tracker.
 
+**Live demo:** [client-tau-six-77.vercel.app](https://client-tau-six-77.vercel.app)
+
 ## Overview
 
 JobMatch AI is a full-stack demo app built around one core loop:
